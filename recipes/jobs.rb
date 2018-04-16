@@ -7,6 +7,8 @@ chef_repos.each do |repo|
     repo['name'],
     repo['url'],
     node[jenkins_cb_name]['git_plugin_version'],
+    node[cookbook_name]['chef-repo']['branch'],
+    node[cookbook_name]['chef-repo']['polling'],
     '_knife_commands.sh.erb',
     node[cookbook_name]['berkshelf']['external']['group'],
     node[cookbook_name]['chef_client_cmd'],
@@ -18,7 +20,12 @@ chef_repos.each do |repo|
     create_jenkins_job(
       cookbook.name,
       cookbook.location.uri,
+      node[jenkins_cb_name]['git_plugin_version'],
+      node[cookbook_name]['chef-repo']['branch'],
+      node[cookbook_name]['chef-repo']['polling'],
       '_cookbook_command.sh.erb',
+      node[cookbook_name]['berkshelf']['external']['group'],
+      node[cookbook_name]['chef_client_cmd'],
       node[cookbook_name]['template']['cookbook']
     )
   end

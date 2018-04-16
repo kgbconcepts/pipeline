@@ -1,3 +1,5 @@
+# github related repo work/fixes
+# assign jenkins cookbook var for portability
 jenkins_cb_name = node[cookbook_name]['jenkins_cb_name']
 
 # override fingerprint rsa

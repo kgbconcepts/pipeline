@@ -50,3 +50,4 @@ suites:
       pipeline:
         template:
           cookbook: pipeline_test
+        deploy_full: true
