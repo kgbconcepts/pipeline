@@ -55,7 +55,7 @@ Now check out your local CD pipeline demo on http://localhost:9090
 
 ### Example Berksfile
 
-from [https://github.com/stephenlauck/pipeline-example-chef-repo/blob/master/Berksfile](https://github.com/stephenlauck/pipeline-example-chef-repo/blob/master/Berksfile)
+from [https://github.com/kgbconcepts/pipeline-example-chef-repo/blob/master/Berksfile](https://github.com/kgbconcepts/pipeline-example-chef-repo/blob/master/Berksfile)
 
 ```
 source "https://supermarket.chef.io"
@@ -71,7 +71,7 @@ group :community do
   cookbook 'chef-dk'
 end
 
-cookbook 'pipeline', git: 'https://github.com/chef-solutions/pipeline.git'
+cookbook 'pipeline', git: 'https://github.com/kgbconcepts/pipeline.git'
 cookbook 'gitlab', git: 'https://github.com/chef-solutions/gitlab.git'
 
 ```
@@ -80,7 +80,7 @@ cookbook 'gitlab', git: 'https://github.com/chef-solutions/gitlab.git'
 
 Update the following to a chef\_repo of your own:
 
-`default['pipeline']['chef-repo']['url'] = "https://github.com/stephenlauck/pipeline_chef.git"`
+`default['pipeline']['chef-repo']['url'] = "https://github.com/kgbconcepts/pipeline-example-chef-repo.git"`
 
 
 - There is a .chef folder in the jenkins user's home. You will need to put an appropriate .pem file in there for a pipeline user with admin rights to Chef.
