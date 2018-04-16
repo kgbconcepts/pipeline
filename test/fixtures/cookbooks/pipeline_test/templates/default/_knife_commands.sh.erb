@@ -1,0 +1,15 @@
+export PATH="/opt/chefdk/embedded/bin:$PATH"
+
+if [ -f Berksfile.lock ];
+  then
+    berks update --only=<%= @knife_berks_ext_group %>
+  else
+    berks install --only=<%= @knife_berks_ext_group %>
+fi
+
+berks upload --only=<%= @knife_berks_ext_group %>
+
+knife upload roles environments data_bags --chef-repo-path .
+
+# build jobs for all cookbooks in Berksfile except <%= @knife_berks_ext_group %> group
+sudo <%= @chef_client_cmd %>

@@ -1,0 +1,19 @@
+export PATH="/opt/chefdk/embedded/bin:$PATH"
+
+if [ -f Berksfile.lock ];
+  then
+    berks update
+  else
+    berks install
+fi
+
+# unit
+rspec --format documentation --color
+# lint
+foodcritic -f correctness .
+rubocop .
+# syntax
+knife cookbook test -o . -a
+
+# upload
+berks upload

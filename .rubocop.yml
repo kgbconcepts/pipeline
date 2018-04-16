@@ -1,0 +1,11 @@
+Metrics/LineLength:
+  Max: 300
+
+Documentation:
+  Enabled: false
+
+Metrics/BlockLength:
+  ExcludedMethods: ['tap']
+
+Metrics/ParameterLists:
+  Enabled: false

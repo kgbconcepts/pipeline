@@ -1,0 +1,52 @@
+---
+driver:
+  name: vagrant
+
+driver_config:
+  network:
+    - ["forwarded_port", {guest: 8080, host: 9090, auto_correct: true}]
+    - ["private_network", {ip: "33.33.33.10"}]
+  customize:
+    memory: 1024
+    cpus: 1
+
+provisioner:
+  name: chef_zero
+  data_bags_path: test/fixtures/data_bags
+
+platforms:
+  - name: ubuntu-14.04
+    run_list:
+      - recipe[apt]
+
+  - name: ubuntu-16.04
+    run_list:
+      - recipe[apt]
+
+  - name: ubuntu-17.10
+    run_list:
+      - recipe[apt]
+
+  - name: centos-6.7
+    run_list:
+      - recipe[yum]
+
+  - name: centos-7.2
+    run_list:
+      - recipe[yum]
+
+suites:
+  - name: pipeline
+    run_list:
+      - recipe[pipeline_test]
+      - recipe[pipeline::jenkins]
+      - recipe[pipeline::chefdk]
+      - recipe[chef-zero]
+      - recipe[pipeline::knife]
+      - recipe[pipeline::jobs]
+    attributes:
+      chef-zero:
+        start: true
+      pipeline:
+        template:
+          cookbook: pipeline_test
