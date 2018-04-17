@@ -7,16 +7,6 @@
 require 'spec_helper'
 
 describe 'pipeline_test::default' do
-  context 'When all attributes are default, on an unspecified platform' do
-    let(:chef_run) do
-      runner = ChefSpec::ServerRunner.new
-      runner.converge(described_recipe)
-    end
-
-    it 'converges successfully' do
-      expect { chef_run }.to_not raise_error # This should not raise an error
-    end
-  end
   context 'When all attributes are default, on Ubuntu 16.04' do
     let(:chef_run) do
       # for a complete list of available platforms and versions see:
