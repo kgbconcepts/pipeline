@@ -8,12 +8,17 @@ if [ -f Berksfile.lock ];
 fi
 
 # unit
-rspec --format documentation --color
+# rspec --format documentation --color
+rspec spec/ --format documentation --color
+
 # lint
 foodcritic -f correctness .
-rubocop .
+# rubocop .
+cookstyle --display-cop-names --extra-details
+
 # syntax
-knife cookbook test -o . -a
+# knife cookbook test -o . -a
+foodcritic .
 
 # upload
 berks upload

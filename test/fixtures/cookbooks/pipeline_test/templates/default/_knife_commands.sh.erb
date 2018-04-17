@@ -12,4 +12,4 @@ berks upload --only=<%= @knife_berks_ext_group %>
 knife upload roles environments data_bags --chef-repo-path .
 
 # build jobs for all cookbooks in Berksfile except <%= @knife_berks_ext_group %> group
-sudo <%= @chef_client_cmd %> -z -c /tmp/kitchen/client.rb 
+sudo <%= @chef_client_cmd %>

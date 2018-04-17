@@ -6,6 +6,9 @@
 cookbook_name = 'pipeline'
 jenkins_cb_name = node[cookbook_name]['jenkins_cb_name']
 
+# set jenkins restart to false
+jenkins_restart_required = false
+
 # here are our included recipes first
 include_recipe 'java'
 include_recipe "#{jenkins_cb_name}::master"
@@ -23,6 +26,7 @@ sudo node[jenkins_cb_name]['master']['user'] do
   user node[jenkins_cb_name]['master']['user']
   nopasswd true
   commands [node[cookbook_name]['chef_client_cmd']]
+  action :create
 end
 
 # cli download and deploy gradle for jenkins plugins management
@@ -38,6 +42,7 @@ execute 'install_gradle' do
     # check installation
     gradle -v
   EOH
+  action :run
   not_if { ::File.exist?('/opt/gradle/bin/gradle') }
 end
 
@@ -71,6 +76,7 @@ chef_orgs.each do |org|
     email org['client'] + '@domain.local'
     password org['password']
     public_keys [public_key]
+    action :create
   end
 
   # Set the private key on the Jenkins executor
@@ -83,11 +89,16 @@ end
 jenkins_script 'setup authentication' do
   command <<-EOH.gsub(/^ {4}/, '')
     import jenkins.model.*
-    def instance = Jenkins.getInstance()
     import hudson.security.*
-    def realm = new HudsonPrivateSecurityRealm(false)
-    instance.setSecurityRealm(realm)
+    import hudson.security.csrf.DefaultCrumbIssuer
+
+    def instance = Jenkins.getInstance()
+    def hudsonRealm = new HudsonPrivateSecurityRealm(false)
+
+    instance.setSecurityRealm(hudsonRealm)
+
     def strategy = new #{node[cookbook_name]['AuthorizationStrategy']}()
+    strategy.setAllowAnonymousRead(false)
     instance.setAuthorizationStrategy(strategy)
     instance.save()
   EOH
@@ -99,6 +110,7 @@ directory node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/' do
   group node[jenkins_cb_name]['master']['group']
   mode '0755'
   recursive true
+  action :create
 end
 
 # deploy gradle build script template
@@ -110,6 +122,8 @@ template node[jenkins_cb_name]['master']['home'] + '/build.gradle' do
   owner node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
   mode '0640'
+  notifies :run, 'execute[install_plugins]', :immediately
+  action :create
 end
 
 # install and manage plugins from here,
@@ -122,7 +136,19 @@ execute 'install_plugins' do
   user node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
   cwd node[jenkins_cb_name]['master']['home']
+  notifies :run, 'ruby_block[jenkins_restart_flag]', :immediately
+  action :nothing
 end
 
 # we need to ensure that all the newly downloaded plugins are registered
-jenkins_command 'safe-restart'
+# Is notified only when a 'jenkins_plugin' is installed or updated.
+ruby_block 'jenkins_restart_flag' do
+  block do
+    jenkins_restart_required = true
+  end
+  action :nothing
+end
+
+jenkins_command 'safe-restart' do
+  only_if { jenkins_restart_required }
+end
