@@ -51,3 +51,4 @@ suites:
         template:
           cookbook: pipeline_test
         deploy_full: true
+        chef_client_cmd: '/usr/bin/chef-client -z -c /tmp/kitchen/client.rb'

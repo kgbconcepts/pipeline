@@ -96,6 +96,7 @@ jenkins_script 'setup authentication' do
     def hudsonRealm = new HudsonPrivateSecurityRealm(false)
 
     instance.setSecurityRealm(hudsonRealm)
+    instance.setCrumbIssuer(new DefaultCrumbIssuer(true))
 
     def strategy = new #{node[cookbook_name]['AuthorizationStrategy']}()
     strategy.setAllowAnonymousRead(false)
