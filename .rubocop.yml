@@ -5,7 +5,7 @@ Documentation:
   Enabled: false
 
 Metrics/BlockLength:
-  ExcludedMethods: ['tap']
+  ExcludedMethods: ['tap','each']
 
 Metrics/ParameterLists:
   Enabled: false

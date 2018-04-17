@@ -14,7 +14,14 @@ chef_repos.each do |repo|
     node[cookbook_name]['chef_client_cmd'],
     node[cookbook_name]['template']['cookbook']
   )
-
+  jenkins_job repo['name'] do
+    # if true will live stream the console output of the executing job  (default is true)
+    stream_job_output true
+    # if true will block the Chef client run until the build is completed or aborted (defaults to true)
+    wait_for_completion false
+    subscribes :build, "create_jenkins_job[#{repo['name']}]", :immediately
+    action :nothing
+  end
   cookbooks_in_berksfile_of_repo(repo['name']).each do |cookbook|
     Chef::Log.info cookbook.location.to_s
     create_jenkins_job(
