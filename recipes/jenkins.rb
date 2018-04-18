@@ -6,7 +6,7 @@
 cookbook_name = 'pipeline'
 jenkins_cb_name = node[cookbook_name]['jenkins_cb_name']
 
-# set jenkins restart to false
+# set jenkins restart to false by default
 jenkins_restart_required = false
 
 # here are our included recipes first
@@ -85,7 +85,8 @@ chef_orgs.each do |org|
   end
 end
 
-# Turn on basic authentication
+# Turn on basic authentication stragy
+# Set default CSRF Crumb
 jenkins_script 'setup authentication' do
   command <<-EOH.gsub(/^ {4}/, '')
     import jenkins.model.*
@@ -131,8 +132,9 @@ end
 # set to install and generate a lock file
 execute 'install_plugins' do
   command <<-EOH.gsub(/^ {4}/, '')
+    #!/bin/bash
     source /etc/profile
-    /opt/gradle/bin/gradle install && /opt/gradle/bin/gradle dependencies > 'plugins.lock'
+    gradle install && gradle dependencies > 'plugins.lock'
   EOH
   user node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
