@@ -9,17 +9,17 @@ jenkins_cb_name = node[cookbook_name]['jenkins_cb_name']
 # set jenkins restart to false by default
 jenkins_restart_required = false
 
-# here are our included recipes first
-include_recipe 'java'
-include_recipe "#{jenkins_cb_name}::master"
-include_recipe 'git'
-
 # addtional packages for this to work
 node[cookbook_name]['pkgs'].each do |pkgs|
   package pkgs do
     action :install
   end
 end
+
+# here are our included recipes first
+include_recipe 'java'
+include_recipe "#{jenkins_cb_name}::master"
+include_recipe 'git'
 
 # sudo no password privileges for jenkins user and command
 sudo node[jenkins_cb_name]['master']['user'] do
@@ -85,27 +85,6 @@ chef_orgs.each do |org|
   end
 end
 
-# Turn on basic authentication stragy
-# Set default CSRF Crumb
-jenkins_script 'setup authentication' do
-  command <<-EOH.gsub(/^ {4}/, '')
-    import jenkins.model.*
-    import hudson.security.*
-    import hudson.security.csrf.DefaultCrumbIssuer
-
-    def instance = Jenkins.getInstance()
-    def hudsonRealm = new HudsonPrivateSecurityRealm(false)
-
-    instance.setSecurityRealm(hudsonRealm)
-    instance.setCrumbIssuer(new DefaultCrumbIssuer(true))
-
-    def strategy = new #{node[cookbook_name]['AuthorizationStrategy']}()
-    strategy.setAllowAnonymousRead(false)
-    instance.setAuthorizationStrategy(strategy)
-    instance.save()
-  EOH
-end
-
 # https://wiki.jenkins-ci.org/display/JENKINS/Post-initialization+script
 directory node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/' do
   owner node[jenkins_cb_name]['master']['user']
@@ -115,8 +94,23 @@ directory node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/' do
   action :create
 end
 
+# custom startups groovy
+template 'groovy_init' do
+  source 'custom_startups.groovy.erb'
+  path node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/custom_startups.groovy'
+  variables(
+    auth_strategy: node[cookbook_name]['AuthorizationStrategy']
+  )
+  owner node[jenkins_cb_name]['master']['user']
+  group node[jenkins_cb_name]['master']['group']
+  mode '0640'
+  notifies :run, 'ruby_block[jenkins_restart_flag]', :immediately
+  action :create
+end
+
 # deploy gradle build script template
-template node[jenkins_cb_name]['master']['home'] + '/build.gradle' do
+template 'template_build_gradle' do
+  path node[jenkins_cb_name]['master']['home'] + '/build.gradle'
   source 'jenkins_home_build_gradle.erb'
   variables(
     plugins: node[cookbook_name]['plugins'].sort.to_h
@@ -134,7 +128,7 @@ execute 'install_plugins' do
   command <<-EOH.gsub(/^ {4}/, '')
     #!/bin/bash
     source /etc/profile
-    gradle install && gradle dependencies > 'plugins.lock'
+    /opt/gradle/bin/gradle install && /opt/gradle/bin/gradle dependencies > 'plugins.lock'
   EOH
   user node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
