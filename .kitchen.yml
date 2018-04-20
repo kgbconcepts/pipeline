@@ -46,6 +46,7 @@ suites:
       - recipe[pipeline::jobs]
     attributes:
       chef-zero:
+        install: true
         start: true
       pipeline:
         template:
