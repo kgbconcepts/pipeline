@@ -19,6 +19,24 @@ end
 # here are our included recipes first
 include_recipe 'java'
 include_recipe "#{jenkins_cb_name}::master"
+
+# install and manage plugins from here,
+# set to install and generate a lock file
+execute 'install_plugins' do
+  command <<-EOH.gsub(/^ {4}/, '')
+    #!/bin/bash
+    source /etc/profile
+    /opt/gradle/bin/gradle install && /opt/gradle/bin/gradle dependencies > 'plugins.lock'
+  EOH
+  user node[jenkins_cb_name]['master']['user']
+  group node[jenkins_cb_name]['master']['group']
+  cwd node[jenkins_cb_name]['master']['home']
+  notifies :run, 'ruby_block[jenkins_restart_flag]', :immediately
+  action :nothing
+end
+
+# deploy jenkins groovy init scripts
+include_recipe "#{cookbook_name}::jenkins_scripts"
 include_recipe 'git'
 
 # sudo no password privileges for jenkins user and command
@@ -27,23 +45,6 @@ sudo node[jenkins_cb_name]['master']['user'] do
   nopasswd true
   commands [node[cookbook_name]['chef_client_cmd']]
   action :create
-end
-
-# cli download and deploy gradle for jenkins plugins management
-execute 'install_gradle' do
-  command <<-EOH.gsub(/^ {4}/, '')
-    cd /tmp
-    curl -L -Of https://services.gradle.org/distributions/gradle-#{node[cookbook_name]['gradle_ver']}-bin.zip
-    unzip -oq gradle-#{node[cookbook_name]['gradle_ver']}-bin.zip -d /opt/
-    ln -s /opt/gradle-#{node[cookbook_name]['gradle_ver']} /opt/gradle
-    chmod -R +x /opt/gradle/lib/
-    printf "export GRADLE_HOME=/opt/gradle\nexport PATH=\$PATH:/opt/gradle/bin" > /etc/profile.d/gradle.sh
-    . /etc/profile.d/gradle.sh
-    # check installation
-    gradle -v
-  EOH
-  action :run
-  not_if { ::File.exist?('/opt/gradle/bin/gradle') }
 end
 
 # Sets up Authentication for Chef-Client towards Jenkins
@@ -83,58 +84,6 @@ chef_orgs.each do |org|
   unless node.run_state[:jenkins_private_key]
     node.run_state[:jenkins_private_key] = private_key
   end
-end
-
-# https://wiki.jenkins-ci.org/display/JENKINS/Post-initialization+script
-directory node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/' do
-  owner node[jenkins_cb_name]['master']['user']
-  group node[jenkins_cb_name]['master']['group']
-  mode '0755'
-  recursive true
-  action :create
-end
-
-# custom startups groovy
-template 'groovy_init' do
-  source 'custom_startups.groovy.erb'
-  path node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/custom_startups.groovy'
-  variables(
-    auth_strategy: node[cookbook_name]['AuthorizationStrategy']
-  )
-  owner node[jenkins_cb_name]['master']['user']
-  group node[jenkins_cb_name]['master']['group']
-  mode '0640'
-  notifies :run, 'ruby_block[jenkins_restart_flag]', :immediately
-  action :create
-end
-
-# deploy gradle build script template
-template 'template_build_gradle' do
-  path node[jenkins_cb_name]['master']['home'] + '/build.gradle'
-  source 'jenkins_home_build_gradle.erb'
-  variables(
-    plugins: node[cookbook_name]['plugins'].sort.to_h
-  )
-  owner node[jenkins_cb_name]['master']['user']
-  group node[jenkins_cb_name]['master']['group']
-  mode '0640'
-  notifies :run, 'execute[install_plugins]', :immediately
-  action :create
-end
-
-# install and manage plugins from here,
-# set to install and generate a lock file
-execute 'install_plugins' do
-  command <<-EOH.gsub(/^ {4}/, '')
-    #!/bin/bash
-    source /etc/profile
-    /opt/gradle/bin/gradle install && /opt/gradle/bin/gradle dependencies > 'plugins.lock'
-  EOH
-  user node[jenkins_cb_name]['master']['user']
-  group node[jenkins_cb_name]['master']['group']
-  cwd node[jenkins_cb_name]['master']['home']
-  notifies :run, 'ruby_block[jenkins_restart_flag]', :immediately
-  action :nothing
 end
 
 # we need to ensure that all the newly downloaded plugins are registered

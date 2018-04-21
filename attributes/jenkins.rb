@@ -14,6 +14,13 @@ default[jenkins_cb_name]['executor']['cli_user'] = 'pipeline'
 
 # eg: 'FullControlOnceLoggedInAuthorizationStrategy'
 default[cookbook_name]['AuthorizationStrategy'] = 'FullControlOnceLoggedInAuthorizationStrategy'
+default[cookbook_name]['AuthorizationStrategyAllowAnonRead'] = 'false'
+
+# num of executors
+default[cookbook_name]['num_of_executors'] = '3'
+
+# disable remoting cli
+default[cookbook_name]['disable_cli'] = 'true'
 
 default[cookbook_name].tap do |jenkins_wrapper|
   jenkins_wrapper['plugins'] = {

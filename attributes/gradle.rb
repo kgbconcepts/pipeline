@@ -1,3 +1,5 @@
 cookbook_name = 'pipeline'
 
-default[cookbook_name]['gradle_ver'] = '4.6'
+default['gradle']['name'] = 'gradle'
+default['gradle']['version'] = '3.6'
+default['gradle']['home_dir'] = '/opt'
