@@ -19,22 +19,8 @@ end
 # here are our included recipes first
 include_recipe 'java'
 include_recipe "#{jenkins_cb_name}::master"
-
-# install and manage plugins from here,
-# set to install and generate a lock file
-execute 'install_plugins' do
-  command <<-EOH.gsub(/^ {4}/, '')
-    #!/bin/bash
-    source /etc/profile
-    /opt/gradle/bin/gradle install && /opt/gradle/bin/gradle dependencies > 'plugins.lock'
-  EOH
-  user node[jenkins_cb_name]['master']['user']
-  group node[jenkins_cb_name]['master']['group']
-  cwd node[jenkins_cb_name]['master']['home']
-  notifies :run, 'ruby_block[jenkins_restart_flag]', :immediately
-  action :nothing
-end
-
+# handle gradle/jenkins plugins
+include_recipe "#{cookbook_name}::jenkins_plugins"
 # deploy jenkins groovy init scripts
 include_recipe "#{cookbook_name}::jenkins_scripts"
 include_recipe 'git'

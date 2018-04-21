@@ -77,7 +77,7 @@ template 'jenkins_groovy_init_8' do
   group node[jenkins_cb_name]['master']['group']
   mode '0640'
   notifies :run, 'ruby_block[jenkins_restart_flag]', :delayed
-  action :create
+  action :nothing
 end
 
 template 'jenkins_groovy_init_9' do
