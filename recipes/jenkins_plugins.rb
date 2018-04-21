@@ -29,8 +29,7 @@ end
 execute 'install_plugins' do
   command <<-EOH.gsub(/^ {4}/, '')
     #!/bin/bash
-    source /etc/profile
-    /opt/gradle/bin/gradle install && /opt/gradle/bin/gradle dependencies > 'plugins.lock'
+    gradle install && gradle dependencies > 'plugins.lock'
   EOH
   user node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
