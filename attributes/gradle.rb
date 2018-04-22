@@ -1,1 +1,1 @@
-default['gradle']['version'] = '3.6'
+default['gradle']['version'] = '4.6'
