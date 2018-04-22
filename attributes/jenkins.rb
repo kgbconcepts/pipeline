@@ -20,7 +20,7 @@ default[cookbook_name]['AuthorizationStrategyAllowAnonRead'] = 'false'
 default[cookbook_name]['num_of_executors'] = '3'
 
 # disable remoting cli
-default[cookbook_name]['disable_cli'] = 'true'
+default[cookbook_name]['disable_cli'] = 'false'
 
 default[cookbook_name].tap do |jenkins_wrapper|
   jenkins_wrapper['plugins'] = {
@@ -31,7 +31,7 @@ default[cookbook_name].tap do |jenkins_wrapper|
       'version' => '2.16.2',
     },
     'script-security' => {
-      'version' => '1.43',
+      'version' => '1.44',
     },
     'structs' => {
       'version' => '1.14',
@@ -52,7 +52,7 @@ default[cookbook_name].tap do |jenkins_wrapper|
       'version' => '1.13',
     },
     'scm-api' => {
-      'version' => '2.2.6',
+      'version' => '2.2.7',
     },
     'workflow-step-api' => {
       'version' => '2.14',
