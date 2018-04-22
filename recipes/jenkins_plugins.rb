@@ -5,10 +5,26 @@
 # portability assignments, wrapper cookbook and jenkins wrapper cookbook
 cookbook_name = 'pipeline'
 jenkins_cb_name = node[cookbook_name]['jenkins_cb_name']
-include_recipe 'gradle'
 
 # set jenkins restart to false by default
 jenkins_restart_required = false
+
+# cli download and deploy gradle for jenkins plugins management
+execute 'install_gradle' do
+  command <<-EOH.gsub(/^ {4}/, '')
+    cd /tmp
+    curl -L -Of https://services.gradle.org/distributions/gradle-#{node[cookbook_name]['gradle_ver']}-bin.zip
+    unzip -oq gradle-#{node[cookbook_name]['gradle_ver']}-bin.zip -d /opt/
+    ln -s /opt/gradle-#{node[cookbook_name]['gradle_ver']} /opt/gradle
+    chmod -R +x /opt/gradle/lib/
+    printf "export GRADLE_HOME=/opt/gradle\nexport PATH=\$PATH:/opt/gradle/bin" > /etc/profile.d/gradle.sh
+    . /etc/profile.d/gradle.sh
+    # check installation
+    gradle -v
+  EOH
+  action :run
+  not_if { ::File.exist?('/opt/gradle/bin/gradle') }
+end
 
 # deploy gradle build script template
 template 'template_build_gradle' do
