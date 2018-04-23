@@ -61,13 +61,13 @@ template 'jenkins_groovy_init_7' do
   source '7_disable_cli.groovy.erb'
   path node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/7_disable_cli.groovy'
   variables(
-    disable_cli: node[cookbook_name]['disable_cli']
+    enable_cli: node[cookbook_name]['enable_cli']
   )
   owner node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
   mode '0640'
   notifies :run, 'ruby_block[jenkins_restart_flag]', :delayed
-  action :create
+  action :nothing
 end
 
 template 'jenkins_groovy_init_8' do

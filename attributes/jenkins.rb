@@ -20,7 +20,7 @@ default[cookbook_name]['AuthorizationStrategyAllowAnonRead'] = 'false'
 default[cookbook_name]['num_of_executors'] = '3'
 
 # disable remoting cli
-default[cookbook_name]['disable_cli'] = 'false'
+default[cookbook_name]['enable_cli'] = 'true'
 
 default[cookbook_name].tap do |jenkins_wrapper|
   jenkins_wrapper['plugins'] = {
@@ -29,6 +29,9 @@ default[cookbook_name].tap do |jenkins_wrapper|
     },
     'bouncycastle-api' => {
       'version' => '2.16.2',
+    },
+    'apache-httpcomponents-client-4-api' => {
+      'version' => '4.5.3-2.1',
     },
     'script-security' => {
       'version' => '1.44',
@@ -50,6 +53,9 @@ default[cookbook_name].tap do |jenkins_wrapper|
     },
     'ssh-credentials' => {
       'version' => '1.13',
+    },
+    'jsch' => {
+      'version' => '0.1.54.2',
     },
     'scm-api' => {
       'version' => '2.2.7',
