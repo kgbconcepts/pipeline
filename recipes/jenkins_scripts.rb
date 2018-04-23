@@ -18,6 +18,20 @@ directory node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/' do
   action :create
 end
 
+# enable cli for run
+template 'jenkins_groovy_init_7' do
+  source '7_disable_cli.groovy.erb'
+  path node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/7_disable_cli.groovy'
+  variables(
+    enable_cli: node[cookbook_name]['enable_cli']
+  )
+  owner node[jenkins_cb_name]['master']['user']
+  group node[jenkins_cb_name]['master']['group']
+  mode '0640'
+  notifies :restart, 'service[jenkins]', :immediately
+  action :create
+end
+
 # custom startups groovy
 template 'jenkins_groovy_init_1' do
   source '1_users_and_setauth.groovy.erb'
@@ -55,19 +69,6 @@ template 'jenkins_groovy_init_3' do
   mode '0640'
   notifies :run, 'ruby_block[jenkins_restart_flag]', :delayed
   action :create
-end
-
-template 'jenkins_groovy_init_7' do
-  source '7_disable_cli.groovy.erb'
-  path node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/7_disable_cli.groovy'
-  variables(
-    enable_cli: node[cookbook_name]['enable_cli']
-  )
-  owner node[jenkins_cb_name]['master']['user']
-  group node[jenkins_cb_name]['master']['group']
-  mode '0640'
-  notifies :run, 'ruby_block[jenkins_restart_flag]', :delayed
-  action :nothing
 end
 
 template 'jenkins_groovy_init_8' do
