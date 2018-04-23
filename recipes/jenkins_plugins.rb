@@ -9,6 +9,20 @@ jenkins_cb_name = node[cookbook_name]['jenkins_cb_name']
 # set jenkins restart to false by default
 jenkins_restart_required = false
 
+# turn off cli at the end
+template 'jenkins_groovy_init_7' do
+  source '7_disable_cli.groovy.erb'
+  path node[jenkins_cb_name]['master']['home'] + '/init.groovy.d/7_disable_cli.groovy'
+  variables(
+    enable_cli: node[cookbook_name]['enable_cli']
+  )
+  owner node[jenkins_cb_name]['master']['user']
+  group node[jenkins_cb_name]['master']['group']
+  mode '0640'
+  notifies :restart, 'service[jenkins]', :immediately
+  action :create
+end
+
 # cli download and deploy gradle for jenkins plugins management
 execute 'install_gradle' do
   command <<-EOH.gsub(/^ {4}/, '')
