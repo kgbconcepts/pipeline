@@ -31,7 +31,7 @@ chef_repos.each do |repo|
 end
 
 # turn off cli at the end
-node.override[cookbook_name]['enable_cli'] = 'false'
+# node.override[cookbook_name]['enable_cli'] = 'false'
 
 template 'jenkins_groovy_init_7' do
   source '7_disable_cli.groovy.erb'
