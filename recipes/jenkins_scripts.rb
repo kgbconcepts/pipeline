@@ -28,7 +28,7 @@ template 'jenkins_groovy_init_7' do
   owner node[jenkins_cb_name]['master']['user']
   group node[jenkins_cb_name]['master']['group']
   mode '0640'
-  notifies :restart, 'service[jenkins]', :immediately
+  notifies :run, 'ruby_block[jenkins_restart_flag]', :delayed
   action :create
 end
 
