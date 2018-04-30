@@ -45,11 +45,11 @@ Note that there is a dependency between the chef-client and a Jenkins job.  The 
 ### Try it!
 From the command line, run one of the following twice:
 
-`kitchen converge pipeline-centos-67`
-`kitchen converge pipeline-centos-72`
-`kitchen converge pipeline-ubuntu-1404`
-`kitchen converge pipeline-ubuntu-1604`
-`kitchen converge pipeline-ubuntu-1710`
+`kitchen converge pipeline-centos-67`\n
+`kitchen converge pipeline-centos-72`\n
+`kitchen converge pipeline-ubuntu-1404`\n
+`kitchen converge pipeline-ubuntu-1604`\n
+`kitchen converge pipeline-ubuntu-1710`\n
 
 Now check out your local CD pipeline demo on http://localhost:9090
 
@@ -72,7 +72,6 @@ group :community do
 end
 
 cookbook 'pipeline', git: 'https://github.com/kgbconcepts/pipeline.git'
-cookbook 'gitlab', git: 'https://github.com/chef-solutions/gitlab.git'
 
 ```
 
